@@ -28,7 +28,6 @@ class HearthStoneBuddyController:
                 if self.game_status.my_turn:
                     self.strategy.execute()
                     print("This Is My turn")
-                    print(self.strategy.my_hand_cards == hs_buddy.my_hand_cards)
                     time.sleep(1)
                     ...
                 else:
