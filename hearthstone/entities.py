@@ -162,10 +162,10 @@ class Game(Entity):
 				continue
 			entity.reset()
 
-	def find_entity_by_id(self, id: int) -> Optional[Entity]:
+	def find_entity_by_id(self, entity_id: int) -> Optional[Entity]:
 		# int() for LazyPlayer mainly...
-		id = int(id)
-		return self._entities.get(id)
+		entity_id = int(entity_id)
+		return self._entities.get(entity_id)
 
 
 class Player(Entity):

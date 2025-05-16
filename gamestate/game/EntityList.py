@@ -1,6 +1,6 @@
-from typing import List, Generator
+from typing import List, Generator, Iterator
 from gamestate.game.Base import Base
-from hearthstone.entities import Card, Game
+from hearthstone.entities import Card, Game, Entity
 from hearthstone.enums import CardType, GameTag, Zone
 
 
@@ -8,13 +8,13 @@ class EntityList(Base):
     def __init__(self):
         super().__init__()
         self.game: Game
-        self.my_player_id : int
-        self.oppo_player_id : int
+        self.my_player_id: int
+        self.oppo_player_id: int
 
     @property
-    def all_cards(self) -> Generator:
+    def all_cards(self) -> Iterator[Entity]:
         return self.game.entities
-    
+
     @property
     def my_graveyard_cards(self) -> List[Card]:
         return self.cards_pool_filter(self.my_entites, Zone.GRAVEYARD)

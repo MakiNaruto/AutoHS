@@ -2,6 +2,7 @@ import os
 import time
 from xml.dom import minidom
 
+
 class HearthStoneLogWatcher:
     def __init__(self):
         super().__init__()

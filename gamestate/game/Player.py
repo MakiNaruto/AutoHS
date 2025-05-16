@@ -1,8 +1,5 @@
-
-
 from gamestate.game.Hero import Hero
 from gamestate.game.Minion import Minion
-from hearthstone.entities import Game
 from hearthstone.entities import Game
 from hearthstone.enums import GameTag
 
@@ -11,8 +8,8 @@ class Player(Hero, Minion):
     def __init__(self):
         super().__init__()
         self.game: Game
-        self.my_player_id : int
-        self.oppo_player_id : int
+        self.my_player_id: int
+        self.oppo_player_id: int
 
     @property
     def oppo_minion_num(self) -> int:
