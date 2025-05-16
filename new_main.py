@@ -1,10 +1,10 @@
 import time
 import threading
-from hearthstone.enums import GameTag, PlayState
+from hearthstone.enums import PlayState
 from gamestate.game.Hand import Hand
 from gamestate.game.Minion import Minion
 from gamestate.game.Player import Player
-from gamestate.StrategyManager import StrategyManager
+from strategy.StrategyManager import StrategyManager
 from gamestate.GameStateUpdater import GameStateUpdater
 
 

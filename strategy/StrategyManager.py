@@ -1,5 +1,5 @@
 from gamestate.GameStateUpdater import GameStateUpdater
-from gamestate.strategy.ShadowFormStrategy import ShadowFormStrategy
+from strategy.ShadowFormStrategy import ShadowFormStrategy
 
 
 class StrategyManager:

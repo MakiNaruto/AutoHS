@@ -66,6 +66,40 @@ class GameStateUpdater(HearthStoneLogWatcher):
         xml_block = game_element.nodes[0]
         self.update(xml_block)
 
+    def log_praser(self, line):
+        # 若没添加新状态桶, 则说明之前的状态桶没有处理完
+        packet_tree = self.parser._parsing_state.packet_tree
+        if not packet_tree or not packet_tree.packets:
+            if self.play_state == PlayState.INVALID:
+                if re.search('CREATE_GAME', line):
+                    self.parser.read_line(line)
+                    self.play_state = PlayState.PLAYING
+                return
+            else:
+                self.parser.read_line(line)
+
+        if not self.my_player_id:
+            self.init_player(line)
+
+        packets = packet_tree.packets
+        last_block_index = len(packets)
+        self.parser.read_line(line)
+        current_block_index = len(packets)
+
+        # 等待一个完整的block块, 最新的状态块的内容可能不完整
+        if current_block_index == last_block_index or current_block_index == 0:
+            return
+
+        # 重置游戏状态器
+        if hasattr(packets[-1], 'value'):
+            if self.play_state == PlayState.PLAYING and packets[-1].value == Step.FINAL_GAMEOVER:
+                self.play_state = PlayState.INVALID
+                self.flush_status(packets[-1])
+                self.reset_status()
+                return
+
+        self.flush_status(packets[-2])
+
     def xml_parser(self, file_path):
         doc = HSReplayDocument.from_xml_file(file_path)
         xml_tree = doc.to_packet_tree()

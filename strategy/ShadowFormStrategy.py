@@ -2,7 +2,7 @@
 
 
 from gamestate.GameStateUpdater import GameStateUpdater
-from gamestate.strategy.CommonStrategy import CommonStrategy
+from strategy.CommonStrategy import CommonStrategy
 from hearthstone.enums import CardType
 
 
