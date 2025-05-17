@@ -1,6 +1,6 @@
 from typing import Dict, List, Union, Iterator
 from hearthstone.cardxml import CardXML, load, load_dbf
-from hearthstone.entities import Card, Game
+from hearthstone.entities import Card, Game, Entity
 from hearthstone.enums import CardType, Zone
 
 
@@ -48,7 +48,7 @@ class GameCard:
 
         return has_owned and is_not_forbidden
 
-    def cards_pool_filter(self, cards: Iterator[Card], card_zone: Zone, card_type_list: List[CardType] = None) -> List[Card]:
+    def cards_pool_filter(self, cards: Iterator[Entity], card_zone: Zone, card_type_list: List[CardType] = None) -> List[Card]:
         """ 
         根据条件筛选卡牌
         @param cards: 待筛选卡牌列表

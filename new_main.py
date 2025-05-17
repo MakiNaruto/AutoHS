@@ -1,14 +1,12 @@
 import time
 import threading
 from hearthstone.enums import PlayState
-from gamestate.game.Hand import Hand
-from gamestate.game.Minion import Minion
 from gamestate.game.Player import Player
 from strategy.StrategyManager import StrategyManager
 from gamestate.GameStateUpdater import GameStateUpdater
 
 
-class HearthStoneBuddy(GameStateUpdater, Player, Minion, Hand):
+class HearthStoneBuddy(GameStateUpdater, Player):
     def __init__(self):
         super().__init__()
 

@@ -2,24 +2,23 @@
 import re
 from typing import Optional
 from collections import deque
+from gamestate.game.Player import Player
 from hslog.export import EntityTreeExporter
 from hslog.parser import LogParser
-from hsreplay import elements
+from hsreplay.elements import GameNode
 from hsreplay.dumper import add_packets_recursive
 from hsreplay.document import HSReplayDocument
-from hearthstone.entities import Card, Game, Entity
+from hearthstone.entities import Game, Entity
 from hearthstone.enums import BlockType, GameTag, PlayState, State, Step
 from gamestate.LogWatcher import HearthStoneLogWatcher
 
 
-class GameStateUpdater(HearthStoneLogWatcher):
+class GameStateUpdater(HearthStoneLogWatcher, Player):
     def __init__(self):
         super().__init__()
         self.parser: LogParser = LogParser()
         self.updater: EntityTreeExporter = EntityTreeExporter(self.parser._parsing_state.packet_tree)
         self.game: Optional[Game] = None
-        self.my_player_id: int = None
-        self.oppo_player_id: int = None
         # 用于标识一局游戏的状态,  PlayState.Playing游戏中, PlayState.INVALID 等待中.
         self.play_state = PlayState.INVALID             
         self.my_turn = False
@@ -33,7 +32,7 @@ class GameStateUpdater(HearthStoneLogWatcher):
         entity_id = match.group(1)
 
         card: Entity = self.game.find_entity_by_id(entity_id)
-        if not card.card_id:
+        if hasattr(card, 'card_id') and not card.card_id:
             return
 
         self.my_player_id = card.controller.player_id
@@ -61,7 +60,7 @@ class GameStateUpdater(HearthStoneLogWatcher):
             self.my_turn = self.game.current_player.player_id == self.my_player_id
 
         # # DEBUG
-        game_element = elements.GameNode(bucket_node.ts)
+        game_element = GameNode(bucket_node.ts)
         add_packets_recursive([bucket_node], game_element)
         xml_block = game_element.nodes[0]
         self.update(xml_block)

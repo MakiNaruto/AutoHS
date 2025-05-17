@@ -1,10 +1,12 @@
+from gamestate.game.Hand import Hand
 from gamestate.game.Hero import Hero
 from gamestate.game.Minion import Minion
+from gamestate.game.Weapon import Weapon
 from hearthstone.entities import Game
 from hearthstone.enums import GameTag
 
 
-class Player(Hero, Minion):
+class Player(Hero, Minion, Hand, Weapon):
     def __init__(self):
         super().__init__()
         self.game: Game

@@ -1,8 +1,8 @@
 
 
-from typing import Dict, Generator
+from typing import Dict, Generator, Iterator, Optional
 from gamestate.game.Card import GameCard
-from hearthstone.entities import Game
+from hearthstone.entities import Game, Entity, Card, Player
 from hearthstone.game_types import GameTagsDict
 
 
@@ -10,33 +10,33 @@ from hearthstone.game_types import GameTagsDict
 class Base(GameCard):
     def __init__(self):
         super().__init__()
-        self.game: Game
-        self.my_player_id : int
-        self.oppo_player_id : int
+        self.game: Game = None
+        self.my_player_id: int = None
+        self.oppo_player_id: int = None
 
-    def get_player(self, player_id):
+    def get_player(self, player_id) -> Optional[Player]:
         return self.game.get_player(player_id)
 
-    def get_player_entites(self, player_id) -> Generator:
+    def get_player_entites(self, player_id) -> Iterator[Entity]:
         return self.get_player(player_id).entities
 
-    def get_player_hero(self, player_id):
+    def get_player_hero(self, player_id) -> Optional[Card]:
         return self.get_player(player_id).hero
 
     @property
-    def my_player(self):
+    def my_player(self) -> Optional[Player]:
         return self.get_player(self.my_player_id)
 
     @property
-    def oppo_player(self):
+    def oppo_player(self) -> Optional[Player]:
         return self.get_player(self.oppo_player_id)
 
     @property
-    def my_hero(self):
+    def my_hero(self) -> Optional["Card"]:
         return self.get_player_hero(self.my_player_id)
 
     @property
-    def oppo_hero(self):
+    def oppo_hero(self) -> Optional["Card"]:
         return self.get_player_hero(self.oppo_player_id)
 
     @property
@@ -56,11 +56,11 @@ class Base(GameCard):
         return self.oppo_hero.tags
 
     @property
-    def my_entites(self) -> Generator:
+    def my_entites(self) -> Iterator[Entity]:
         return self.get_player_entites(self.my_player_id)
     
     @property
-    def oppo_entites(self) -> Generator:
+    def oppo_entites(self) -> Iterator[Entity]:
         return self.get_player_entites(self.oppo_player_id)
 
     

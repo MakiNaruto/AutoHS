@@ -1,4 +1,4 @@
-from typing import List, Generator, Iterator
+from typing import List, Iterator
 from gamestate.game.Base import Base
 from hearthstone.entities import Card, Game, Entity
 from hearthstone.enums import CardType, GameTag, Zone

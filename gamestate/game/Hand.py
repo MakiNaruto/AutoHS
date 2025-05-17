@@ -1,10 +1,11 @@
 from typing import List
-from gamestate.game.Card import GameCard
+
+from gamestate.game.Base import Base
 from hearthstone.entities import Card, Game
 from hearthstone.enums import GameTag, Zone
 
 
-class Hand(GameCard):
+class Hand(Base):
     def __init__(self):
         super().__init__()
         self.game: Game
