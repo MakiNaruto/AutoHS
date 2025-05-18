@@ -1,9 +1,6 @@
-
-
-
-from gamestate.GameStateUpdater import GameStateUpdater
-from strategy.CommonStrategy import CommonStrategy
 from hearthstone.enums import CardType
+from strategy.CommonStrategy import CommonStrategy
+from gamestate.GameStateUpdater import GameStateUpdater
 
 
 class ShadowFormStrategy(CommonStrategy):

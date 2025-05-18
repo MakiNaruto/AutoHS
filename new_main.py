@@ -17,7 +17,25 @@ class HearthStoneBuddy(GameStateUpdater):
 class HearthStoneBuddyController:
     def __init__(self, game_status: GameStateUpdater):
         self.game_status = game_status
-        self.strategy = StrategyManager(game_status).create_strategy('aggressive')
+        self.strategyManager = StrategyManager(game_status)
+        self.strategy = self.strategyManager.create_strategy('暗牧')
+
+    def change_strategy(self, strategy_name):
+        self.strategy = self.strategyManager.create_strategy(strategy_name)
+
+    def game_strategy_check(self):
+        """ 切换对战策略 """
+        if self.strategyManager.current_strategy == '切换的策略名称':
+            return
+
+        self.change_strategy('其他策略')
+        # 更换策略
+        print("Watting Game Start")
+
+    def game_interface_check(self):
+        # TODO 判断界面状态
+        # 准备进入到对战中
+        ...
 
     def turn_controller(self):
         while True:
@@ -31,19 +49,15 @@ class HearthStoneBuddyController:
                     print("Watting")
                     time.sleep(1)
             else:
-                if "change":
-                    self.strategy = StrategyManager(self.game_status).create_strategy('aggressive')
-                print("Watting Game Start")
+                self.game_strategy_check()
+                self.game_interface_check()
                 time.sleep(1)
 
 
 if __name__ == "__main__":
-    # export PYTHONPATH=$(pwd)
     log_file_path = 'test-0512.log'
     hs_buddy = HearthStoneBuddy()
-    
     # watcher.log_listener(log_file_path)
-
     # watcher.xml_parser('test-0512.xml')
 
     controller = HearthStoneBuddyController(hs_buddy)
