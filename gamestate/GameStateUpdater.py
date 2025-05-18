@@ -1,4 +1,3 @@
-
 import re
 from typing import Optional
 from collections import deque
@@ -16,6 +15,8 @@ from gamestate.LogWatcher import HearthStoneLogWatcher
 class GameStateUpdater(HearthStoneLogWatcher, Player):
     def __init__(self):
         super().__init__()
+        self.my_player_id: int = None
+        self.oppo_player_id: int = None
         self.parser: LogParser = LogParser()
         self.updater: EntityTreeExporter = EntityTreeExporter(self.parser._parsing_state.packet_tree)
         self.game: Optional[Game] = None
@@ -116,12 +117,7 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
             if node.tagname == "Block":
                 # TODO 完善
                 if node.type == BlockType.ATTACK:
-                    from hearthstone.enums import Zone
-                    # print(self.cards_pool_filter(self.my_entites, Zone.HAND))
                     print(self.my_health)
-                    import time
-                    # time.sleep(10)
-                    # for minion in self.oppo_board_minions:
                     ...
 
                 elif node.type == BlockType.POWER:

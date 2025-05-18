@@ -1,18 +1,15 @@
-
-
-from typing import Dict, Generator, Iterator, Optional
+from typing import Iterator, Optional
 from gamestate.game.Card import GameCard
 from hearthstone.entities import Game, Entity, Card, Player
 from hearthstone.game_types import GameTagsDict
-
 
 
 class Base(GameCard):
     def __init__(self):
         super().__init__()
         self.game: Game = None
-        self.my_player_id: int = None
-        self.oppo_player_id: int = None
+        self.my_player_id: int = 0
+        self.oppo_player_id: int = 0
 
     def get_player(self, player_id) -> Optional[Player]:
         return self.game.get_player(player_id)

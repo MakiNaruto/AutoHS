@@ -1,4 +1,3 @@
-
 from gamestate.game.Base import Base
 from hearthstone.entities import Game
 from hearthstone.enums import GameTag

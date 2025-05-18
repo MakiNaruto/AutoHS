@@ -1,8 +1,8 @@
 from typing import Optional, List
-
 from gamestate.game.EntityList import EntityList
 from hearthstone.entities import Game, Card
 from hearthstone.enums import GameTag
+from hearthstone.game_types import GameTagsDict
 
 
 class Minion(EntityList):
@@ -54,30 +54,32 @@ class Minion(EntityList):
         )
         return result and minion_attr.get(GameTag.ATK) > 0 and minion_attr.get(GameTag.EXHAUSTED) == 0
 
-    def can_be_pointed_minion(self, entity):
+    def can_be_pointed_minion(self, minion):
         """ 可以被随从战吼、法术、技能效果指向的随从 """
         forbidden_attributes = [GameTag.STEALTH, GameTag.UNTOUCHABLE, GameTag.DORMANT, GameTag.IMMUNE]
-        check_res = self.check_minion_attributes(entity, forbidden_attributes=forbidden_attributes)
+        check_res = self.check_minion_attributes(minion, forbidden_attributes=forbidden_attributes)
         return check_res
 
-    def get_minion_status(self, entity: Card):
-        return entity.tags
+    def get_minion_status(self, minion: Card) -> GameTagsDict:
+        if hasattr(minion, 'tags'):
+            return minion.tags
+        else:
+            return dict()
 
-    def get_minion_base_info(self, entity: Card):
-        return entity.base_tags
+    def get_minion_base_info(self, minion: Card) -> GameTagsDict:
+        if hasattr(minion, 'base_tags'):
+            return minion.base_tags
+        else:
+            return dict()
 
-    @property
-    def touchable_oppo_minions(self):
-        ret = []
+    def get_minion_health(self, minion: Card):
+        minion_status = self.get_minion_status(minion)
+        return minion_status.get(GameTag.HEALTH)
 
-        for oppo_minion in self.oppo_play_minions:
-            check_res = self.check_minion_attributes(oppo_minion, owned_attributes=[GameTag.TAUNT])
-            if check_res and self.can_be_pointed_minion(oppo_minion):
-                ret.append(oppo_minion)
+    def get_minion_attack(self, minion: Card):
+        minion_status = self.get_minion_status(minion)
+        return minion_status.get(GameTag.HEALTH)
 
-        if len(ret) == 0:
-            for oppo_minion in self.oppo_play_minions:
-                if self.can_be_pointed_minion(oppo_minion):
-                    ret.append(oppo_minion)
-
-        return ret
+    def get_minion_spell_power(self, minion: Card):
+        minion_status = self.get_minion_status(minion)
+        return minion_status.get(GameTag.SPELLPOWER)
