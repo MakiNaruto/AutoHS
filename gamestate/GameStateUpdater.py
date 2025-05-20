@@ -1,7 +1,9 @@
 import re
 from typing import Optional
 from collections import deque
+from gamestate.game.Card import GameCard
 from gamestate.game.Player import Player
+from gamestate.LogWatcher import HearthStoneLogWatcher
 from hslog.export import EntityTreeExporter
 from hslog.parser import LogParser
 from hsreplay.elements import GameNode
@@ -9,11 +11,10 @@ from hsreplay.dumper import add_packets_recursive
 from hsreplay.document import HSReplayDocument
 from hearthstone.entities import Game, Entity
 from hearthstone.enums import BlockType, GameTag, PlayState, State, Step
-from gamestate.LogWatcher import HearthStoneLogWatcher
 
 
-class GameStateUpdater(HearthStoneLogWatcher, Player):
-    def __init__(self):
+class GameStateUpdater(HearthStoneLogWatcher):
+    def __init__(self, debug=True):
         super().__init__()
         self.my_player_id: int = None
         self.oppo_player_id: int = None
@@ -23,8 +24,10 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
         # 用于标识一局游戏的状态,  PlayState.Playing游戏中, PlayState.INVALID 等待中.
         self.play_state = PlayState.INVALID             
         self.my_turn = False
+        if debug:
+            self.card_db = GameCard()
 
-    def init_player(self, line):
+    def init_player_from_log(self, line):
         pattern = r"SHOW_ENTITY - Updating Entity=.*?id=(\w+)"
         match = re.search(pattern, line)
         if not match:
@@ -35,8 +38,20 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
         card: Entity = self.game.find_entity_by_id(entity_id)
         if hasattr(card, 'card_id') and not card.card_id:
             return
+        
+        self.init_player(card.controller.player_id)
 
-        self.my_player_id = card.controller.player_id
+    def init_player_from_xml(self, doc):
+        players = doc.games[0].players
+        for player in players:
+            nodes = player.nodes
+            if nodes[0].tagname == 'Deck':
+                self.my_player_id = int(player.playerID)
+                self.oppo_player_id = 3 - self.my_player_id
+        assert self.my_player_id, '未能解析到我方玩家playerID'
+
+    def init_player(self, my_player_id):
+        self.my_player_id = my_player_id
         self.oppo_player_id = 3 - self.my_player_id
 
         # 设置玩家姓名
@@ -61,6 +76,7 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
             self.my_turn = self.game.current_player.player_id == self.my_player_id
 
         # # DEBUG
+        self.my_player = Player(self.game, self.my_player_id)
         game_element = GameNode(bucket_node.ts)
         add_packets_recursive([bucket_node], game_element)
         xml_block = game_element.nodes[0]
@@ -79,7 +95,7 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
                 self.parser.read_line(line)
 
         if not self.my_player_id:
-            self.init_player(line)
+            self.init_player_from_log(line)
 
         packets = packet_tree.packets
         last_block_index = len(packets)
@@ -106,6 +122,10 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
         packet_tree = xml_tree[0]
         self.game = packet_tree.export().game
         packets = packet_tree.packets
+
+        if not self.my_player_id:
+            self.init_player_from_xml(doc)
+
         for packet in packets:
             self.flush_status(packet)
 
@@ -117,8 +137,15 @@ class GameStateUpdater(HearthStoneLogWatcher, Player):
             if node.tagname == "Block":
                 # TODO 完善
                 if node.type == BlockType.ATTACK:
-                    print(self.my_health)
-                    ...
+                    print(self.my_player.hero_health)
+                    if not all([node.entity, node.target]):
+                        continue
+                    entity = self.game.find_entity_by_id(node.entity)
+                    target = self.game.find_entity_by_id(node.target)
+
+                    entity_name = self.card_db.get_card_info(entity.card_id).name
+                    target_name = self.card_db.get_card_info(target.card_id).name
+                    print(f'{entity_name} 攻击 {target_name}')
 
                 elif node.type == BlockType.POWER:
                     ...

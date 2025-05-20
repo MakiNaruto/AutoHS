@@ -1,29 +1,23 @@
 from hearthstone.enums import GameTag
 from hearthstone.entities import Card
-from gamestate.game.Hand import Hand
-from gamestate.game.Minion import Minion
-from gamestate.game.Player import Player
 
 
-class Heuristic(Player, Minion, Hand):
-    def __init__(self):
-        super().__init__()
+class WeaponHeuristic():
+    def __init__(self, player=None):
+        self.player = player
 
-    def player_heuristic_val(self, health):
-        if health <= 0:
-            return -10000
-        if health <= 5:
-            return health
-        if health <= 10:
-            return 5 + (health - 5) * 0.6
-        if health <= 20:
-            return 8 + (health - 10) * 0.4
-        else:
-            return 12 + (health - 20) * 0.3
+    @property
+    def weapon_heuristic_val(self):
+        return self.player.hero_attack * self.player.hero_health
 
-    def minion_heuristic_val(self, minion: Card):
+
+class MinionHeuristic():
+    def __init__(self, player=None):
+        self.player = player
+
+    def minion_heuristic_value(self, minion: Card):
         zone = minion.zone
-        minion_status = self.get_minion_status(minion)
+        minion_status = self.player.get_minion_status(minion)
         health = minion_status.get(GameTag.HEALTH, 0)
         attack = minion_status.get(GameTag.ATK)
         divine_shield = minion_status.get(GameTag.DIVINE_SHIELD)
@@ -62,35 +56,33 @@ class Heuristic(Player, Minion, Hand):
 
         return h_val
 
-    def weapon_heuristic_val(self, hero_attack, hero_health):
-        return hero_attack * hero_health
-
+class HeroHeuristic():
+    def __init__(self, player=None):
+        self.player = player
+    
     @property
-    def my_weapon_heuristic_val(self):
-        return self.weapon_heuristic_val(self.my_hero_attack, self.my_health)
+    def hero_heuristic_value(self):
+        if self.player.hero_health <= 0:
+            return -10000
+        if self.player.hero_health <= 5:
+            return self.player.hero_health
+        if self.player.hero_health <= 10:
+            return 5 + (self.player.hero_health - 5) * 0.6
+        if self.player.hero_health <= 20:
+            return 8 + (self.player.hero_health - 10) * 0.4
+        else:
+            return 12 + (self.player.hero_health - 20) * 0.3
 
-    @property
-    def oppo_weapon_heuristic_val(self):
-        return self.weapon_heuristic_val(self.oppo_hero_attack, self.oppo_health)
 
-    @property
-    def my_heuristic_value(self):
-        total_h_val = self.player_heuristic_val(self.my_health)
-        if self.my_weapon:
-            total_h_val += self.my_weapon_heuristic_val
-        for minion in self.my_play_minions:
-            total_h_val += self.minion_heuristic_val(minion)
-        return total_h_val
-
-    @property
-    def oppo_heuristic_value(self):
-        total_h_val = self.player_heuristic_val(self.oppo_health)
-        if self.oppo_weapon:
-            total_h_val += self.oppo_weapon_heuristic_val
-        for minion in self.oppo_play_minions:
-            total_h_val += self.minion_heuristic_val(minion)
-        return total_h_val
+class Heuristic(WeaponHeuristic, HeroHeuristic, MinionHeuristic):
+    def __init__(self, player):
+        super().__init__(player)
 
     @property
     def heuristic_value(self):
-        return round(self.my_heuristic_value - self.oppo_heuristic_value, 3)
+        total_h_val = self.player_heuristic_value
+        if self.player.weapon:
+            total_h_val += self.weapon_heuristic_val
+        for minion in self.player.play_minions:
+            total_h_val += self.minion_heuristic_value(minion)
+        return total_h_val

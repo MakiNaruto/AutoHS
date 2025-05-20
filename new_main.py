@@ -25,10 +25,10 @@ class HearthStoneBuddyController:
 
     def game_strategy_check(self):
         """ 切换对战策略 """
-        if self.strategyManager.current_strategy == '切换的策略名称':
+        if self.strategyManager.current_strategy == '暗牧':
             return
 
-        self.change_strategy('其他策略')
+        # self.change_strategy('其他策略')
         # 更换策略
         print("Watting Game Start")
 
@@ -55,10 +55,11 @@ class HearthStoneBuddyController:
 
 
 if __name__ == "__main__":
-    log_file_path = 'test-0512.log'
     hs_buddy = HearthStoneBuddy()
-    # watcher.log_listener(log_file_path)
-    # watcher.xml_parser('test-0512.xml')
+    
+    log_file_path = 'test-0512.log'
+    # hs_buddy.log_listener(log_file_path)
+    # hs_buddy.xml_parser('weapon-0520.xml')
 
     controller = HearthStoneBuddyController(hs_buddy)
     # 正式运行

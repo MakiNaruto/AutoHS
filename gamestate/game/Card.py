@@ -7,9 +7,6 @@ from hearthstone.enums import CardType, Zone
 class GameCard:
     def __init__(self):
         super().__init__()
-        self.game: Game
-        self.my_player_id: int
-        self.oppo_player_id: int
         self.dbf_card_db: Dict[int, CardXML] = {}
         self.id_card_db: Dict[str, CardXML] = {}
         self.init_cards()
@@ -48,7 +45,7 @@ class GameCard:
 
         return has_owned and is_not_forbidden
 
-    def cards_pool_filter(self, cards: Iterator[Entity], card_zone: Zone, card_type_list: List[CardType] = None) -> list[Entity]:
+    def cards_pool_filter(self, cards: Iterator[Entity], card_zone: Zone, card_type_list: List[CardType] = None) -> list[Card]:
         """ 
         根据条件筛选卡牌
         @param cards: 待筛选卡牌列表
@@ -59,7 +56,7 @@ class GameCard:
         if not card_type_list:
             card_type_list = []
 
-        filter_cards = []
+        filter_cards: List[Card] = []
         for card in cards:
             zone = card.zone
             if not hasattr(card, 'card_id') or not card.card_id:
